@@ -32,13 +32,21 @@ import com.example.fakestoreapp.Models.Product
 import com.example.fakestoreapp.Models.Rating
 import com.example.fakestoreapp.ui.theme.CoffeeTypography
 import com.example.fakestoreapp.ui.theme.FakeStoreAppTheme
+import android.util.Log
+
+
 
 @Composable
 fun ProductCard(product: Product,  onClick: () -> Unit) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(130.dp),
+            .height(130.dp)
+            .clickable {
+                Log.i("HomeScreen", "Producto clickeado: ${product.title}")
+                onClick() // <-- llamar al callback
+            },
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
     ) {

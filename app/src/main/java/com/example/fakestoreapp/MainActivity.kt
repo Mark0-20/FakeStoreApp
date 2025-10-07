@@ -14,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.fakestoreapp.Screens.ProductDetailScreen
 import com.example.fakestoreapp.Screens.ProductsScreen
@@ -49,9 +51,12 @@ class MainActivity : ComponentActivity() {
                                 navController
                             )
                         }
-                        composable <ProductDetailScreenRoute>{ backStack ->
-                            val args = backStack.toRoute<ProductDetailScreenRoute>()
-                            ProductDetailScreen( args.id)
+                        composable(
+                            route = "productDetail/{id}",
+                            arguments = listOf(navArgument("id") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val id = backStackEntry.arguments?.getInt("id") ?: 0
+                            ProductDetailScreen(id)
                         }
 
                     }
