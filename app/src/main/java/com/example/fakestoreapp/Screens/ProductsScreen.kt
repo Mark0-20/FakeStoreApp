@@ -1,8 +1,10 @@
 package com.example.fakestoreapp.Screens
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -17,11 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.fakestoreapp.Components.ProductCard
 import com.example.fakestoreapp.Models.Product
 import com.example.fakestoreapp.Services.ProductService
+import com.example.fakestoreapp.ui.theme.CoffeeAccent
 import com.example.fakestoreapp.ui.theme.FakeStoreAppTheme
 import com.example.fakestoreapp.ui.theme.ProductDetailScreenRoute
 import kotlinx.coroutines.Dispatchers
@@ -32,56 +36,49 @@ import retrofit2.converter.gson.GsonConverterFactory
 @Composable
 fun ProductsScreen(
     navController: NavController
-){
-    var products by remember {
-        mutableStateOf(listOf<Product>())
-    }
+) {
+    var products by remember { mutableStateOf(listOf<Product>()) }
+    var loading by remember { mutableStateOf(true) }
 
-    var loading by remember {
-        mutableStateOf(true)
-    }
-
-    LaunchedEffect(true) { //para que la llamada a la api se realice solo una vez, cuando esta cargando la app
+    LaunchedEffect(true) {
         try {
-            //1. crear una instacia de retrofit
-            Log.i("HomeScreen","Inicializando")
-            val retrofit = Retrofit
-                .Builder()
+            Log.i("ProductsScreen", "Inicializando API")
+            val retrofit = Retrofit.Builder()
                 .baseUrl("https://fakestoreapi.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
+
             val service = retrofit.create(ProductService::class.java)
             val result = async(Dispatchers.IO) {
                 service.getAllProducts()
             }
-            Log.i("HomeScreen","${result.await()}")
             products = result.await()
             loading = false
-        }
-        catch (e: Exception){
+        } catch (e: Exception) {
             loading = false
-            Log.e("HomeScreen", e.toString())
+            Log.e("ProductsScreen", e.toString())
         }
     }
 
-    if(loading){
-        Box (
-            modifier = Modifier
-                .fillMaxSize(),
+    if (loading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
-            CircularProgressIndicator()
+        ) {
+            CircularProgressIndicator(color = CoffeeAccent)
         }
-    }else{
-        LazyColumn (
+    } else {
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-        ){
-            items(products){ product ->
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(products) { product ->
                 ProductCard(
                     product = product,
                     onClick = {
-                        navController.navigate(ProductDetailScreenRoute(product.id))
+                        navController.navigate("productDetail/${product.id}")
                     }
                 )
             }
